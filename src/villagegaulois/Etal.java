@@ -42,7 +42,7 @@ public class Etal {
 	public String afficherEtal() {
 		if (etalOccupe) {
 			return "L'étal de " + vendeur.getNom() + " est garni de " + quantite
-					+ " " + produit + "\n";
+					+ " " + produit + ".\n";
 		}
 		return "L'étal est libre";
 	}

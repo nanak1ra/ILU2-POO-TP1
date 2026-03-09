@@ -9,6 +9,7 @@ public class Village {
 	private Chef chef;
 	private Gaulois[] villageois;
 	private int nbVillageois = 0;
+	private Marche marche;
 	
 	private static class Marche {
 		private Etal[] etals;
@@ -60,7 +61,6 @@ public class Village {
 		}
 		
 		private Etal trouverVendeur(Gaulois gaulois) {
-			boolean found=false;
 			int i=0;
 			while (i<etals.length) {
 				if (etals[i]!=null && etals[i].getVendeur()==gaulois) {
@@ -87,9 +87,10 @@ public class Village {
 		
 	}
 
-	public Village(String nom, int nbVillageoisMaximum) {
+	public Village(String nom, int nbVillageoisMaximum, int nbEtals) {
 		this.nom = nom;
 		villageois = new Gaulois[nbVillageoisMaximum];
+		this.marche = new Marche(nbEtals);
 	}
 
 	public String getNom() {
@@ -135,20 +136,62 @@ public class Village {
 		return chaine.toString();
 	}
 	
+	public String installerVendeur(Gaulois vendeur, String produit, int nbProduit) {
+		int etalNum = this.marche.trouverEtalLibre();
+		if (etalNum==-1)
+			return vendeur.getNom() + " ne peut pas s'installer au marché.\n";
+		this.marche.utiliserEtal(etalNum, vendeur, produit, nbProduit);
+		return vendeur.getNom() + " cherche un endroit pour vendre " + nbProduit + " " + produit + ".\n"
+				+ "Le vendeur " + vendeur.getNom() + " vend des " + produit + " à l'étal n°" + (etalNum+1) + ".\n";
+	}
+	
+	public String rechercherVendeursProduit(String produit) {
+		Etal[] etal = this.marche.trouverEtals(produit);
+		int nbEtals=etal.length;
+		String finPhrase = "propose des " + produit + " au marché.\n";
+		if(nbEtals==0)
+			return "Il n'y a pas de vendeur qui " + finPhrase;
+		else if(nbEtals==1) {
+			Gaulois vendeur = etal[0].getVendeur();
+			return "Seul le vendeur " + vendeur.getNom() + " " + finPhrase;
+		}
+		String texteEtals = "Les vendeurs qui proposent des " + produit + " sont :\n";
+		for(int i=0;i<nbEtals;i++) {
+			Gaulois vendeur = etal[i].getVendeur();
+			texteEtals+= "- " + vendeur.getNom() + "\n";
+		}
+		return texteEtals;
+	}
+	
+	public Etal rechercherEtal(Gaulois vendeur) {
+		return this.marche.trouverVendeur(vendeur);
+	}
+	
+	public String partirVendeur(Gaulois vendeur) {
+		return rechercherEtal(vendeur).libererEtal();
+	}
+	
 	public static void main(String[] args) {
-		Village village = new Village("VillageTest", 10);
-		Marche marche = new Marche(5);
-		Gaulois assurancetourix=new Gaulois("Assurancetourix", 3);
-		Gaulois asterix=new Gaulois("Astérix", 15);
-		System.out.println(marche.trouverEtalLibre());
-		marche.utiliserEtal(0, assurancetourix, "Poisson", 12);
-		System.out.println(marche.trouverEtalLibre());
-		Etal[] poisson = marche.trouverEtals("Poisson");
-		System.out.println(poisson[0].afficherEtal());
-		Etal etal_tr= marche.trouverVendeur(assurancetourix);
-		System.out.println(etal_tr.afficherEtal());
-		System.out.println("Affichage\n");
-		marche.utiliserEtal(1, asterix, "Sanglier", 9);
-		System.out.println(marche.afficherMarche());
+//		Village village = new Village("VillageTest", 10,5);
+//		Gaulois assurancetourix=new Gaulois("Assurancetourix", 3);
+//		Gaulois asterix=new Gaulois("Astérix", 15);
+//		System.out.println(marche.trouverEtalLibre());
+//		marche.utiliserEtal(0, assurancetourix, "Poisson", 12);
+//		System.out.println(marche.trouverEtalLibre());
+//		Etal[] poisson = marche.trouverEtals("Poisson");
+//		System.out.println(poisson[0].afficherEtal());
+//		Etal etal_tr= marche.trouverVendeur(assurancetourix);
+//		System.out.println(etal_tr.afficherEtal());
+//		System.out.println("Affichage\n");
+//		marche.utiliserEtal(1, asterix, "Sanglier", 9);
+//		System.out.println(marche.afficherMarche());
+		Village village = new Village("Test",10,5);
+		Gaulois bonemine = new Gaulois("Bonemine", 5);
+		Gaulois falbala = new Gaulois("Falbala", 7);
+		System.out.println(village.installerVendeur(bonemine, "fleurs", 20));
+		System.out.println(village.installerVendeur(falbala, "fleurs", 15));
+		System.out.println(village.rechercherVendeursProduit("fleurs"));
+		System.out.println(village.rechercherEtal(falbala).afficherEtal());
+		System.out.println(village.partirVendeur(falbala));
 	}
 }
