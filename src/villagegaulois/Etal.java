@@ -26,17 +26,24 @@ public class Etal {
 	}
 
 	public String libererEtal() {
-		etalOccupe = false;
-		StringBuilder chaine = new StringBuilder(
-				"Le vendeur " + vendeur.getNom() + " quitte son étal, ");
-		int produitVendu = quantiteDebutMarche - quantite;
-		if (produitVendu > 0) {
-			chaine.append(
-					"il a vendu " + produitVendu + " parmi " + produit + ".\n");
-		} else {
-			chaine.append("il n'a malheureusement rien vendu.\n");
+		try {
+			etalOccupe = false;
+			StringBuilder chaine = new StringBuilder(
+					"Le vendeur " + vendeur.getNom() + " quitte son étal, ");
+			int produitVendu = quantiteDebutMarche - quantite;
+			if (produitVendu > 0) {
+				chaine.append(
+						"il a vendu " + produitVendu + " " + produit + " parmi " + quantiteDebutMarche 
+						+ " " + produit + ".\n");
+			} else {
+				chaine.append("il n'a malheureusement rien vendu.\n");
+			}
+			return chaine.toString();
 		}
-		return chaine.toString();
+		catch (NullPointerException e) {
+			System.out.println("Impossible de libérer un étal non occupé.");
+			return null;
+		}
 	}
 
 	public String afficherEtal() {
@@ -44,11 +51,18 @@ public class Etal {
 			return "L'étal de " + vendeur.getNom() + " est garni de " + quantite
 					+ " " + produit + ".\n";
 		}
-		return "L'étal est libre";
+		return "L'étal est libre.";
 	}
 
 	public String acheterProduit(int quantiteAcheter, Gaulois acheteur) {
-		if (etalOccupe) {
+		if (quantiteAcheter<=0) {
+			throw new IllegalArgumentException("La quantité à acheter ne peut pas être " 
+					+ quantiteAcheter + ".");
+		}
+		if (!etalOccupe) {
+			throw new IllegalStateException("Il n'est pas possible d'acheter à un étal vide.");
+		}
+		try {
 			StringBuilder chaine = new StringBuilder();
 			chaine.append(acheteur.getNom() + " veut acheter " + quantiteAcheter
 					+ " " + produit + " à " + vendeur.getNom());
@@ -71,7 +85,10 @@ public class Etal {
 			}
 			return chaine.toString();
 		}
-		return null;
+		catch (NullPointerException e) {
+			e.printStackTrace();
+			return "";
+		}
 	}
 
 	public boolean contientProduit(String produit) {

@@ -86,6 +86,25 @@ public class Village {
 		}
 		
 	}
+	
+	public class VillageSansChefException extends IllegalStateException {
+		private static final long serialVersionUID = 1L;
+		
+		public VillageSansChefException() {
+		}
+		
+		public VillageSansChefException(String message) {
+			super(message);
+		}
+		
+		public VillageSansChefException(Throwable cause) {
+			super(cause);
+		}
+		
+		public VillageSansChefException(String message,Throwable cause) {
+			super(message,cause);
+		}
+	}
 
 	public Village(String nom, int nbVillageoisMaximum, int nbEtals) {
 		this.nom = nom;
@@ -122,6 +141,10 @@ public class Village {
 	}
 
 	public String afficherVillageois() {
+		if (this.chef==null) {
+			throw new VillageSansChefException("Le village n'a pas de chef");
+		}
+		
 		StringBuilder chaine = new StringBuilder();
 		if (nbVillageois < 1) {
 			chaine.append("Il n'y a encore aucun habitant au village du chef "
@@ -155,12 +178,13 @@ public class Village {
 			Gaulois vendeur = etal[0].getVendeur();
 			return "Seul le vendeur " + vendeur.getNom() + " " + finPhrase;
 		}
-		String texteEtals = "Les vendeurs qui proposent des " + produit + " sont :\n";
+		StringBuilder texteEtals= new StringBuilder();
+		texteEtals.append("Les vendeurs qui proposent des " + produit + " sont :\n");
 		for(int i=0;i<nbEtals;i++) {
 			Gaulois vendeur = etal[i].getVendeur();
-			texteEtals+= "- " + vendeur.getNom() + "\n";
+			texteEtals.append("- " + vendeur.getNom() + "\n");
 		}
-		return texteEtals;
+		return texteEtals.toString();
 	}
 	
 	public Etal rechercherEtal(Gaulois vendeur) {
@@ -169,6 +193,18 @@ public class Village {
 	
 	public String partirVendeur(Gaulois vendeur) {
 		return rechercherEtal(vendeur).libererEtal();
+	}
+	
+	public String afficherMarche() {
+		StringBuilder description=new StringBuilder();
+		description.append("Le marché du village " + this.nom);
+		if (this.marche.trouverEtalLibre()==-1) {
+			description.append(" ne possède aucun étal occupé.");
+			return description.toString();
+		}
+		else description.append(" possède plusieurs étalages :\n");
+		description.append(this.marche.afficherMarche());
+		return description.toString();
 	}
 	
 	public static void main(String[] args) {
